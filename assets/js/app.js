@@ -41,7 +41,15 @@ $("loginForm").addEventListener("submit", async e=>{
   $("loginButton").disabled=true; $("loginButton").textContent="Memeriksa...";
   $("loginError").classList.add("hidden");
   try { await signInWithEmailAndPassword(auth,$("loginEmail").value.trim(),$("loginPassword").value); }
-  catch(err) { $("loginError").textContent=authError(err.code); $("loginError").classList.remove("hidden"); }
+  catch(err) {
+  console.error("LOGIN ERROR:", err.code, err.message);
+
+  $("loginError").textContent =
+    "Kode error: " + (err.code || "tidak diketahui") +
+    " | " + (err.message || "Login gagal");
+
+  $("loginError").classList.remove("hidden");
+}
   finally { $("loginButton").disabled=false; $("loginButton").textContent="Masuk"; }
 });
 function authError(code) {
