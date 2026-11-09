@@ -8,3 +8,28 @@
 .data-table{width:100%;border-collapse:collapse;text-align:left;font-size:12px;white-space:nowrap}.data-table th{background:#f8faf9;color:#64748b;font-weight:700;padding:13px 14px;border-block:1px solid #e8eeea}.data-table td{padding:14px;border-bottom:1px solid #eef2ef;color:#475569}.data-table td:nth-child(2){font-weight:700;color:#0f172a}.pill{display:inline-flex;border-radius:99px;padding:4px 9px;font-size:10px;font-weight:700;background:#ecfdf5;color:#047857}
 #map{height:390px;width:100%;border-radius:12px;z-index:1}
 @media(max-width:640px){.panel{padding:16px}.stat-card{padding:17px}#map{height:320px}}
+
+
+/* Perbaikan: utility lg:flex tidak boleh mengalahkan class hidden. */
+#appView.hidden,
+#loginView.hidden {
+  display: none !important;
+}
+
+/* Halaman login memenuhi layar dan kartu berada di tengah. */
+#loginView {
+  display: flex;
+  min-height: 100vh;
+  min-height: 100svh;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+}
+#loginView > section {
+  width: 100%;
+  margin: auto;
+}
+@media (max-width: 767px) {
+  #loginView { padding: 16px; }
+  #loginView > section { border-radius: 20px; }
+}
