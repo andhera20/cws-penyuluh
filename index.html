@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Dashboard CWS Penyuluh Pertanian">
+  <title>CWS Penyuluh Pertanian</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <div class="min-h-screen lg:flex">
+    <aside id="sidebar" class="sidebar fixed inset-y-0 left-0 z-40 w-72 -translate-x-full bg-emerald-950 text-white transition-transform lg:translate-x-0">
+      <div class="flex h-20 items-center gap-3 border-b border-white/10 px-6">
+        <div class="grid h-11 w-11 place-items-center rounded-xl bg-emerald-400 text-xl font-black text-emerald-950">C</div>
+        <div><div class="font-bold tracking-wide">CWS PENYULUH</div><div class="text-xs text-emerald-200">Pertanian • Data Center</div></div>
+      </div>
+      <nav class="space-y-2 p-4" aria-label="Navigasi utama">
+        <button class="nav-link active" data-page="dashboard"><span>▦</span> Dashboard Data</button>
+        <button class="nav-link" data-page="kepegawaian"><span>♙</span> Data Kepegawaian</button>
+        <button class="nav-link" data-page="wilayah"><span>⌖</span> Data Wilayah</button>
+      </nav>
+      <div class="absolute bottom-0 w-full border-t border-white/10 p-5 text-xs text-emerald-200">
+        <div class="font-semibold text-white">CWS Penyuluh Pertanian</div>
+        <div class="mt-1">Pusat data dan informasi penyuluhan</div>
+        <div class="mt-4">Versi 1.0 • GitHub Pages</div>
+      </div>
+    </aside>
+
+    <div id="sidebarOverlay" class="fixed inset-0 z-30 hidden bg-slate-950/40 lg:hidden"></div>
+    <main class="min-w-0 flex-1 lg:ml-72">
+      <header class="sticky top-0 z-20 flex h-20 items-center justify-between border-b border-slate-200 bg-white/90 px-4 backdrop-blur sm:px-8">
+        <div class="flex items-center gap-3">
+          <button id="menuToggle" class="rounded-lg border border-slate-200 px-3 py-2 lg:hidden" aria-label="Buka menu">☰</button>
+          <div><p class="text-xs font-semibold uppercase tracking-[.18em] text-emerald-700">Central Web System</p><h1 id="pageTitle" class="text-lg font-bold sm:text-xl">Dashboard Data</h1></div>
+        </div>
+        <div class="hidden items-center gap-3 sm:flex"><span class="h-2.5 w-2.5 rounded-full bg-emerald-500"></span><span class="text-sm text-slate-500">Sistem informasi penyuluhan</span></div>
+      </header>
+
+      <div class="mx-auto max-w-7xl space-y-6 p-4 sm:p-8">
+        <section id="page-dashboard" class="page space-y-6">
+          <div class="flex flex-col justify-between gap-2 sm:flex-row sm:items-end">
+            <div><p class="text-sm text-slate-500">Ringkasan informasi pertanian</p><h2 class="text-2xl font-bold">Dashboard Data</h2></div>
+            <p class="text-sm text-slate-500">Pembaruan data: <span id="updateDate"></span></p>
+          </div>
+          <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <article class="stat-card"><div class="stat-icon bg-emerald-100 text-emerald-700">♙</div><p class="stat-label">Jumlah Penyuluh</p><p id="statPenyuluh" class="stat-value">0</p><p class="stat-note">Data tenaga penyuluh</p></article>
+            <article class="stat-card"><div class="stat-icon bg-blue-100 text-blue-700">▱</div><p class="stat-label">Luas Lahan</p><p id="statLahan" class="stat-value">0 <small>Ha</small></p><p class="stat-note">Total luas lahan terdata</p></article>
+            <article class="stat-card"><div class="stat-icon bg-amber-100 text-amber-700">♧</div><p class="stat-label">Kelompok Tani</p><p id="statPoktan" class="stat-value">0</p><p class="stat-note">Kelompok tani terdaftar</p></article>
+            <article class="stat-card"><div class="stat-icon bg-violet-100 text-violet-700">✓</div><p class="stat-label">Capaian Program</p><p id="statCapaian" class="stat-value">0%</p><p class="stat-note">Realisasi program berjalan</p></article>
+          </div>
+          <div class="grid gap-6 xl:grid-cols-5">
+            <article class="panel xl:col-span-3"><div class="panel-heading"><div><h3 class="panel-title">Capaian Program Pertanian</h3><p class="panel-subtitle">Perbandingan target dan realisasi (%)</p></div><span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">Tahunan</span></div><div class="chart-wrap"><canvas id="programChart"></canvas></div></article>
+            <article class="panel xl:col-span-2"><div class="panel-heading"><div><h3 class="panel-title">Komposisi Status Pegawai</h3><p class="panel-subtitle">Berdasarkan status kepegawaian</p></div></div><div class="chart-wrap"><canvas id="statusChart"></canvas></div></article>
+          </div>
+          <article class="panel"><div class="panel-heading"><div><h3 class="panel-title">Sebaran Komoditas Unggulan</h3><p class="panel-subtitle">Jumlah wilayah berdasarkan komoditas utama</p></div></div><div class="chart-wrap chart-short"><canvas id="commodityChart"></canvas></div></article>
+        </section>
+
+        <section id="page-kepegawaian" class="page hidden space-y-6">
+          <div class="flex flex-col justify-between gap-3 sm:flex-row sm:items-end"><div><p class="text-sm text-slate-500">Direktori tenaga penyuluh</p><h2 class="text-2xl font-bold">Data Kepegawaian</h2></div><button id="downloadEmployees" class="btn-primary">↓ Unduh CSV</button></div>
+          <div class="panel">
+            <div class="mb-5 grid gap-3 md:grid-cols-3">
+              <label class="md:col-span-1"><span class="field-label">Pencarian</span><input id="employeeSearch" class="field" placeholder="Cari NIP, nama, atau wilayah..."></label>
+              <label><span class="field-label">Status Kepegawaian</span><select id="statusFilter" class="field"><option value="">Semua status</option><option>PNS</option><option>PPPK</option><option>THL</option></select></label>
+              <label><span class="field-label">Jabatan</span><select id="positionFilter" class="field"><option value="">Semua jabatan</option><option>Penyuluh Pertanian Ahli Pertama</option><option>Penyuluh Pertanian Ahli Muda</option><option>Penyuluh Pertanian Ahli Madya</option><option>Penyuluh Pertanian Terampil</option></select></label>
+            </div>
+            <div class="mb-3 flex items-center justify-between"><p id="employeeCount" class="text-sm text-slate-500"></p><p class="text-xs text-slate-400">Contoh data / silakan ganti dengan data resmi</p></div>
+            <div class="overflow-x-auto"><table class="data-table"><thead><tr><th>NIP</th><th>Nama</th><th>Jabatan</th><th>Status</th><th>Wilayah Kerja</th><th>Kontak</th></tr></thead><tbody id="employeeTable"></tbody></table></div>
+          </div>
+        </section>
+
+        <section id="page-wilayah" class="page hidden space-y-6">
+          <div><p class="text-sm text-slate-500">Pemetaan wilayah binaan</p><h2 class="text-2xl font-bold">Data Wilayah</h2></div>
+          <div class="grid gap-6 xl:grid-cols-5">
+            <article class="panel xl:col-span-3"><div class="panel-heading"><div><h3 class="panel-title">Peta Sebaran Wilayah Kerja</h3><p class="panel-subtitle">Pilih penanda untuk melihat ringkasan wilayah</p></div></div><div id="map"></div><p class="mt-3 text-xs text-slate-400">Peta membutuhkan koneksi internet untuk memuat peta dasar OpenStreetMap.</p></article>
+            <article class="panel xl:col-span-2"><h3 class="panel-title mb-1">Ringkasan Wilayah</h3><p class="panel-subtitle mb-4">Jumlah data berdasarkan daftar wilayah</p><div id="areaSummary" class="space-y-3"></div></article>
+          </div>
+          <article class="panel"><div class="panel-heading"><div><h3 class="panel-title">Tabel Pembagian Wilayah Kerja</h3><p class="panel-subtitle">Kecamatan, desa, kelompok tani, dan komoditas unggulan</p></div><input id="areaSearch" class="field max-w-xs" placeholder="Cari kecamatan / desa..."></div><div class="overflow-x-auto"><table class="data-table"><thead><tr><th>Kecamatan</th><th>Desa/Kelurahan</th><th>Kelompok Tani</th><th>Komoditas Unggulan</th><th>Luas (Ha)</th></tr></thead><tbody id="areaTable"></tbody></table></div></article>
+        </section>
+        <footer class="border-t border-slate-200 pt-5 text-center text-xs text-slate-400">© <span id="year"></span> CWS Penyuluh Pertanian • Data ditampilkan sebagai contoh awal</footer>
+      </div>
+    </main>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
