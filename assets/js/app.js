@@ -6,7 +6,7 @@ import { firebaseConfig } from "./firebase-config.js";
 
 const $ = id => document.getElementById(id);
 let auth, db, functions, currentUser, profile, map, charts = {};
-const configReady = firebaseConfig.apiKey !== "ISI_API_KEY" && firebaseConfig.projectId !== "NAMA-PROJECT";
+const configReady = firebaseConfig.apiKey !== "AIzaSyA-S1WqLV5hDDt9lc8XF86YhbyFLyPjFXE" && firebaseConfig.projectId !== "cws-penyuluh";
 
 function showLogin() { $("loginView").classList.remove("hidden"); $("appView").classList.add("hidden"); }
 function showApp() { $("loginView").classList.add("hidden"); $("appView").classList.remove("hidden"); }
