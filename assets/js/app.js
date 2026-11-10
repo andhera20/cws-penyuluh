@@ -6,7 +6,9 @@ import { firebaseConfig } from "./firebase-config.js";
 
 const $ = id => document.getElementById(id);
 let auth, db, functions, currentUser, profile, map, charts = {};
-const configReady = firebaseConfig.apiKey !== "ISI_API_KEY" && firebaseConfig.projectId !== "NAMA-PROJECT";
+
+// Perbaikan pengecekan konfigurasi Firebase
+const configReady = firebaseConfig.apiKey && firebaseConfig.apiKey !== "ISI_API_KEY" && firebaseConfig.projectId !== "NAMA-PROJECT";
 
 function showLogin() { $("loginView").classList.remove("hidden"); $("appView").classList.add("hidden"); }
 function showApp() { $("loginView").classList.add("hidden"); $("appView").classList.remove("hidden"); }
@@ -40,22 +42,22 @@ $("loginForm").addEventListener("submit", async e=>{
   e.preventDefault(); if(!configReady)return;
   $("loginButton").disabled=true; $("loginButton").textContent="Memeriksa...";
   $("loginError").classList.add("hidden");
-  try { await signInWithEmailAndPassword(auth,$("loginEmail").value.trim(),$("loginPassword").value); }
+  try { 
+    await signInWithEmailAndPassword(auth,$("loginEmail").value.trim(),$("loginPassword").value); 
+  }
   catch(err) {
-  console.error("LOGIN ERROR:", err.code, err.message);
-
-  $("loginError").textContent =
-    "Kode error: " + (err.code || "tidak diketahui") +
-    " | " + (err.message || "Login gagal");
-
-  $("loginError").classList.remove("hidden");
-}
+    console.error("LOGIN ERROR:", err.code, err.message);
+    $("loginError").textContent = authError(err.code);
+    $("loginError").classList.remove("hidden");
+  }
   finally { $("loginButton").disabled=false; $("loginButton").textContent="Masuk"; }
 });
+
 function authError(code) {
   const map={"auth/invalid-credential":"Email atau kata sandi tidak sesuai.","auth/user-disabled":"Akun dinonaktifkan.","auth/too-many-requests":"Terlalu banyak percobaan. Coba beberapa saat lagi.","auth/network-request-failed":"Periksa koneksi internet."};
   return map[code] || "Login gagal. Periksa email, kata sandi, dan konfigurasi Firebase.";
 }
+
 $("togglePassword").addEventListener("click",()=>{const p=$("loginPassword");p.type=p.type==="password"?"text":"password";$("togglePassword").textContent=p.type==="password"?"Lihat":"Sembunyikan";});
 $("logoutButton").addEventListener("click",()=>signOut(auth));
 $("year").textContent=new Date().getFullYear();
@@ -72,6 +74,7 @@ async function initializeWorkspace() {
   renderDashboard();
   if(profile.role==="admin") setupCreateUser();
 }
+
 function showPage(page) {
   document.querySelectorAll(".page").forEach(p=>p.classList.add("hidden"));
   $("page-"+page).classList.remove("hidden");
@@ -88,6 +91,7 @@ async function loadEmployees() {
   const snap=await getDocs(qy); employeeRows=snap.docs.map(d=>({id:d.id,...d.data()}));
   renderEmployees();
 }
+
 function renderEmployees() {
   const term=($("employeeSearch").value||"").toLowerCase();
   const rows=employeeRows.filter(e=>[e.nip,e.name,e.position,e.district].join(" ").toLowerCase().includes(term));
@@ -109,6 +113,7 @@ async function loadAreas() {
     if(marks.length)map.fitBounds(L.featureGroup(marks).getBounds().pad(.2));
   }
 }
+
 function renderDashboard() {
   const totalGroups=areaRows.reduce((s,a)=>s+(Number(a.groups)||0),0);
   const totalArea=areaRows.reduce((s,a)=>s+(Number(a.hectares)||0),0);
@@ -122,6 +127,7 @@ function renderDashboard() {
     charts.program=new Chart($("programChart"),{type:"bar",data:{labels:["Luas Tambah Tanam","Optimasi Lahan","Perbenihan","Irigasi Perpipaan"],datasets:[{label:"Realisasi (%)",data:[0,0,0,0],backgroundColor:"#059669",borderRadius:7}]},options:{responsive:true,maintainAspectRatio:false,scales:{y:{beginAtZero:true,max:100}}}});
   }
 }
+
 function setupCreateUser() {
   $("createUserForm").addEventListener("submit",async e=>{
     e.preventDefault(); const btn=$("createUserButton");btn.disabled=true;message($("createUserMessage"),"Membuat akun...");
